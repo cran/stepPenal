@@ -4,7 +4,8 @@
 \alias{lassomodel}
 \title{Fits a lasso model and a lasso followed by a stepAIC algorithm.}
 \usage{
-lassomodel(Data, standardize = TRUE, measure = c("deviance"), nfold = 5)
+lassomodel(Data, standardize = TRUE, measure = c("deviance"),
+  nfold = 5)
 }
 \arguments{
 \item{Data}{a data frame, as a first column should have the response variable y}
@@ -32,6 +33,7 @@ The selected lambda is the one that gives either the minimum deviance (measure="
 or the maximum auc (measure="auc") or minimum misclassification error (measure="class")
 }
 \examples{
+\dontrun{
 set.seed(14)
 beta    <- c(3, 2, -1.6, -4)
 noise   <- 5
@@ -42,9 +44,9 @@ lassofit
 
 lassofit2 <- lassomodel(Data=simData, measure="deviance")
 lassofit2
+}
 
 }
 \seealso{
 \code{\link[glmnet]{glmnet}}
 }
-

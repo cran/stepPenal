@@ -31,6 +31,7 @@ The value of lamda and w that yield the maximum AUC on the
 cross-validating data set is selected.
 }
 \examples{
+\dontrun{
 set.seed(14)
 beta    <- c(3, 2, -1.6, -4)
 noise   <- 5
@@ -63,6 +64,5 @@ runQN2   <- optimPenaLik(simData, lamda= allmaxAUC[1,]$lamda,
                          algorithms=c("QN"))
 (coefQN2  <- runQN2$varQN)
 
-
 }
-
+}

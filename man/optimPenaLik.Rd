@@ -34,9 +34,9 @@ using the optimPenaLik function.
 }
 \examples{
 # use the optimPenaLik function on a simulated dataset, with given lamda and w.
-
+\dontrun{
 set.seed(14)
-beta    <- c(3, 2, -1.6, -4)
+beta    <- c(3, 2, -1.6, -1)
 noise   <- 5
 simData <- SimData(N=100, beta=beta, noise=noise, corr=TRUE)
 
@@ -55,13 +55,12 @@ before  <- Sys.time()
 Penalhjk <- optimPenaLik(Data=simData, lamda=1.5, w=0.7,
                        algorithms=c("hjk"))
 (totRun  <- Sys.time() - before)
-# total run of approx 1.3sec
+# total run of approx 0.25sec
 
 Penalhjk
-
+}
 
 }
 \seealso{
-\code{\link[dfoptim]{hjk}} \code{\link[stats]{optim}}
+\code{\link[stats]{optim}}
 }
-

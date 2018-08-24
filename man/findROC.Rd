@@ -21,7 +21,7 @@ This function computes the numeric value of area under the ROC curve (AUC) with 
 It is a wrapper function around the pRoc function in the roc package
 }
 \examples{
-
+\dontrun{
 set.seed(14)
 beta    <- c(3, 2, -1.6, -4)
 noise   <- 5
@@ -32,9 +32,8 @@ stepPenal<- StepPenal(Data=simData, lamda=1.2, w=0.7)
 (coeffP <- stepPenal$coeffP)
 
 findROC(simData, coeff=coeffP)
-
+}
 }
 \seealso{
 \code{\link[pROC]{roc}}
 }
-

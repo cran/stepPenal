@@ -25,6 +25,7 @@ The area under the curve and the Brier score is used to summarize and compare th
 }
 \examples{
 # use the penalBrier function on a simulated dataset, with given lamda and w.
+\dontrun{
 set.seed(14)
 beta    <- c(3, 2, -1.6, -4)
 noise   <- 5
@@ -36,10 +37,9 @@ stepPenal<- StepPenal(Data=simData, lamda=1.2, w=0.4)
 
 (coeff<- stepPenal$coeffP)
  me <- penalBrier(simData,coeff)
-
+}
 }
 \references{
 Brier, G. W. (1950). Verification of forecasts expressed in terms of probability.
 Monthly Weather Review 78.
 }
-

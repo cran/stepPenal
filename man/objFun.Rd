@@ -28,7 +28,7 @@ Objective (non-convex) function to minimize (objFun=-logL+ lamda*CL, CL= (1-w)L0
 \examples{
 
 set.seed(14)
-beta    <- c(3, 2, -1.6, -4)
+beta    <- c(3, 2, -1.6, -1)
 noise   <- 5
 simData <- SimData(N=100, beta=beta, noise=noise, corr=FALSE)
 
@@ -47,4 +47,3 @@ for(i in 1:length(betapoints)){
 plot(betapoints, out, type="l", ylab="objFun")
 
 }
-

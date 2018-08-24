@@ -31,10 +31,10 @@ lamda and w  parameters need to be tuned by cross-Validation using stepPenal::tu
 # use the StepPenal function on a simulated dataset, with given lamda and w.
 
 set.seed(14)
-beta    <- c(3, 2, -1.6, -4)
+beta    <- c(3, 2, -1.6, -1)
 noise   <- 5
 simData <- SimData(N=100, beta=beta, noise=noise, corr=TRUE)
-
+\dontrun{
 before <- Sys.time()
 stepPenalL2 <- StepPenalL2(Data=simData, lamda=1.5, w=0.6)
 after <- Sys.time()
@@ -42,7 +42,7 @@ after-before
 
 (varstepPenal<- stepPenalL2$coeffP)
 }
+}
 \seealso{
 \code{\link[stats]{optim}}
 }
-

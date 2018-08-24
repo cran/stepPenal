@@ -20,6 +20,7 @@ It also returns the in-sample AUC and the Brier score
 It is a wrapper function over the step function in the buildin package stats
 }
 \examples{
+\dontrun{
 set.seed(14)
 beta    <- c(3, 2, -1.6, -4)
 noise   <- 5
@@ -28,7 +29,7 @@ simData <- SimData(N=100, beta=beta, noise=noise, corr=FALSE)
 stepaicfit <- stepaic(Data=simData)
 stepaicfit
 }
+}
 \seealso{
 \code{\link[stats]{step}}
 }
-

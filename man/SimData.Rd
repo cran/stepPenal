@@ -39,4 +39,3 @@ N     <- 100
 simData <- SimData(N=N, beta=beta, noise=noise, corr=FALSE)
 
 }
-

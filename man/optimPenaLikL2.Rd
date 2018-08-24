@@ -34,9 +34,10 @@ it is recommended to use the tuneParam function to tune parameters lamda and w p
 using the optimPenaLik function.
 }
 \examples{
+\dontrun{
 # use the optimPenaLik function on a simulated dataset, with given lamda and w.
 set.seed(14)
-beta    <- c(3, 2, -1.6, -4)
+beta    <- c(3, 2, -1.6, -1)
 noise   <- 5
 simData <- SimData(N=100, beta=beta, noise=noise, corr=TRUE)
 
@@ -47,6 +48,6 @@ PenalQN <- optimPenaLikL2(Data=simData, lamda=2, w=0.6,
 after <- Sys.time()
 after-before
 PenalQN
-
 }
 
+}

@@ -31,4 +31,3 @@ The value of lamda and w that yield the maximum AUC on the
 cross-validating data set is selected. If more that one value of lamda nad w yield the same AUC,
 then the biggest values of lamda and w are choosen.
 }
-

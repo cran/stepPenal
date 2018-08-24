@@ -64,7 +64,7 @@ SimData <- function(N, beta, noise, corr=TRUE, corr.effect=0.5){
 #' @examples
 #'
 #' set.seed(14)
-#' beta    <- c(3, 2, -1.6, -4)
+#' beta    <- c(3, 2, -1.6, -1)
 #' noise   <- 5
 #' simData <- SimData(N=100, beta=beta, noise=noise, corr=FALSE)
 #'
@@ -133,22 +133,25 @@ return(f)
 #' an estimated coefficient different from zero. It also returns the value of the objective function, evaluated for the
 #' values of the coefficients.
 #' @details lamda and w  parameters need to be tuned by cross-Validation using stepPenal::tuneParam
+#' @references Vradi E, Brannath W, Jaki T, Vonk R. Model selection based on combined penalties for biomarker
+#' identification. Journal of biopharmaceutical statistics. 2018 Jul 4;28(4):735-49.
 #' @seealso \code{\link[stats]{optim}}
 #' @export
 #' @examples
 #' # use the StepPenal function on a simulated dataset, with given lamda and w.
 #'
 #' set.seed(14)
-#' beta    <- c(3, 2, -1.6, -4)
+#' beta    <- c(3, 2, -1.6, -1)
 #' noise   <- 5
 #' simData <- SimData(N=100, beta=beta, noise=noise, corr=FALSE)
-#'
+#' \dontrun{
 #' before <- Sys.time()
-#' stepPenal<- StepPenal(Data=simData, lamda=1.5, w=0.1)
+#' stepPenal<- StepPenal(Data=simData, lamda=1.5, w=0.3)
 #' after <- Sys.time()
 #' after-before
 #'
 #' (varstepPenal<- stepPenal$coeffP)
+#' }
 
 StepPenal <- function(Data, lamda,  w, standardize=TRUE) {
   if (standardize==TRUE){
@@ -176,6 +179,40 @@ StepPenal <- function(Data, lamda,  w, standardize=TRUE) {
       }
       y     <- as.matrix(Data$y)
       x     <- as.matrix(Data[,-1][,c(sz, z[j]) ])
+
+
+          objFun<- function(x, y, lamda, w, beta, epsilon) {
+
+            logL <- function(x, y, beta){
+              loglik   <- - sum( -y*log(1 + exp(-(x%*%beta))) - (1-y)*log(1 + exp(x%*%beta)))
+              return(loglik)
+            }
+            f1 <- logL(x, y,beta)
+
+            CL <- function(beta, w, epsilon) {
+              # begin L0
+              L0 <- function(beta, epsilon) {
+                p <- length(beta)
+                L0_j <- function(beta_j, epsilon) {
+                  y <- NULL
+                  if (abs(beta_j) >= epsilon) {
+                    y <- 1
+                  } else {
+                    y <- abs(beta_j) / epsilon
+                  }
+                  return(y)
+                }
+                y <- sum(sapply(beta, L0_j, epsilon))
+                return(y)
+              }
+              # end L0
+              beta <- as.matrix(beta)
+              y <- (1-w) * L0(beta, epsilon) + w * norm(beta, type="1")
+              return(y)
+            }
+            f  <- f1 + lamda*CL(beta, w, epsilon)
+            return(f)
+          }
 
       useoptim <-  tryCatch({
         stats::optim(par=c(rep(1,(length(z[j])+length(sz)))),
@@ -234,16 +271,17 @@ StepPenal <- function(Data, lamda,  w, standardize=TRUE) {
 #' # use the StepPenal function on a simulated dataset, with given lamda and w.
 #'
 #' set.seed(14)
-#' beta    <- c(3, 2, -1.6, -4)
+#' beta    <- c(3, 2, -1.6, -1)
 #' noise   <- 5
 #' simData <- SimData(N=100, beta=beta, noise=noise, corr=TRUE)
-#'
+#' \dontrun{
 #' before <- Sys.time()
 #' stepPenalL2 <- StepPenalL2(Data=simData, lamda=1.5, w=0.6)
 #' after <- Sys.time()
 #' after-before
 #'
 #' (varstepPenal<- stepPenalL2$coeffP)
+#' }
 
 StepPenalL2<- function(Data, lamda,  w, standardize=TRUE) {
   if (standardize==TRUE){
@@ -356,15 +394,15 @@ StepPenalL2<- function(Data, lamda,  w, standardize=TRUE) {
 #' @param algorithms select between BFGS ('QN') or Hooke-Jeeves (hjk) algorithm.
 #' @details it is recommended to use the tuneParam function to tune parameters lamda and w prior
 #' using the optimPenaLik function.
-#' @seealso \code{\link[dfoptim]{hjk}} \code{\link[stats]{optim}}
+#' @seealso \code{\link[stats]{optim}}
 #' @return a list with the shrinked coefficients and the names of the selected variables, i.e those variables with
 #' estimated coefficient different from zero.
 #' @export
 #' @examples
 #' # use the optimPenaLik function on a simulated dataset, with given lamda and w.
-#'
+#' \dontrun{
 #' set.seed(14)
-#' beta    <- c(3, 2, -1.6, -4)
+#' beta    <- c(3, 2, -1.6, -1)
 #' noise   <- 5
 #' simData <- SimData(N=100, beta=beta, noise=noise, corr=TRUE)
 #'
@@ -384,10 +422,10 @@ StepPenalL2<- function(Data, lamda,  w, standardize=TRUE) {
 #' Penalhjk <- optimPenaLik(Data=simData, lamda=1.5, w=0.7,
 #'                        algorithms=c("hjk"))
 #' (totRun  <- Sys.time() - before)
-#' # total run of approx 1.3sec
+#' # total run of approx 0.25sec
 #'
 #' Penalhjk
-#'
+#'}
 #'
 
 optimPenaLik <-  function(Data, lamda, w, standardize=TRUE,
@@ -521,9 +559,10 @@ optimPenaLik <-  function(Data, lamda, w, standardize=TRUE,
 #' estimated coefficient different from zero.
 #' @export
 #' @examples
+#' \dontrun{
 #' # use the optimPenaLik function on a simulated dataset, with given lamda and w.
 #' set.seed(14)
-#' beta    <- c(3, 2, -1.6, -4)
+#' beta    <- c(3, 2, -1.6, -1)
 #' noise   <- 5
 #' simData <- SimData(N=100, beta=beta, noise=noise, corr=TRUE)
 #'
@@ -534,6 +573,7 @@ optimPenaLik <-  function(Data, lamda, w, standardize=TRUE,
 #' after <- Sys.time()
 #' after-before
 #' PenalQN
+#'}
 #'
 optimPenaLikL2 <-  function(Data, lamda, w, standardize=TRUE,
                             algorithms=c("QN","hjk") ){
@@ -670,6 +710,7 @@ optimPenaLikL2 <-  function(Data, lamda, w, standardize=TRUE,
 #'
 #' @export
 #' @examples
+#' \dontrun{
 #' set.seed(14)
 #' beta    <- c(3, 2, -1.6, -4)
 #' noise   <- 5
@@ -702,7 +743,7 @@ optimPenaLikL2 <-  function(Data, lamda, w, standardize=TRUE,
 #'                          algorithms=c("QN"))
 #' (coefQN2  <- runQN2$varQN)
 #'
-#'
+#' }
 
 tuneParam <- function(Data, nfolds=nfolds, grid, algorithm=c("hjk", "QN")){
   if (nfolds==1){
@@ -956,6 +997,7 @@ tuneParamCL2 <- function(Data, nfolds=nfolds, grid, algorithm=c("QN")){
 #' @seealso \code{\link[stats]{step}}
 #' @export
 #' @examples
+#' \dontrun{
 #' set.seed(14)
 #' beta    <- c(3, 2, -1.6, -4)
 #' noise   <- 5
@@ -963,6 +1005,7 @@ tuneParamCL2 <- function(Data, nfolds=nfolds, grid, algorithm=c("QN")){
 #'
 #' stepaicfit <- stepaic(Data=simData)
 #' stepaicfit
+#' }
 
 
 stepaic <- function(Data, standardize=TRUE){
@@ -1014,6 +1057,7 @@ stepaic <- function(Data, standardize=TRUE){
 #' or the maximum auc (measure="auc") or minimum misclassification error (measure="class")
 #' @export
 #' @examples
+#' \dontrun{
 #' set.seed(14)
 #' beta    <- c(3, 2, -1.6, -4)
 #' noise   <- 5
@@ -1024,6 +1068,7 @@ stepaic <- function(Data, standardize=TRUE){
 #'
 #' lassofit2 <- lassomodel(Data=simData, measure="deviance")
 #' lassofit2
+#'}
 #'
 
 lassomodel <- function(Data, standardize=TRUE, measure=c("deviance"), nfold=5){
@@ -1077,6 +1122,7 @@ lassomodel <- function(Data, standardize=TRUE, measure=c("deviance"), nfold=5){
 #' Monthly Weather Review 78.
 #' @examples
 #' # use the penalBrier function on a simulated dataset, with given lamda and w.
+#' \dontrun{
 #' set.seed(14)
 #' beta    <- c(3, 2, -1.6, -4)
 #' noise   <- 5
@@ -1088,7 +1134,7 @@ lassomodel <- function(Data, standardize=TRUE, measure=c("deviance"), nfold=5){
 #'
 #' (coeff<- stepPenal$coeffP)
 #'  me <- penalBrier(simData,coeff)
-#'
+#' }
 
 penalBrier <- function(Data, coeffP){
   if(is.null(names(coeffP))==TRUE){
@@ -1117,7 +1163,7 @@ penalBrier <- function(Data, coeffP){
 #' @seealso \code{\link[pROC]{roc}}
 #' @export
 #' @examples
-#'
+#' \dontrun{
 #' set.seed(14)
 #' beta    <- c(3, 2, -1.6, -4)
 #' noise   <- 5
@@ -1128,7 +1174,7 @@ penalBrier <- function(Data, coeffP){
 #' (coeffP <- stepPenal$coeffP)
 #'
 #' findROC(simData, coeff=coeffP)
-#'
+#' }
 
 findROC  <- function(Data, coeff){
   if(is.null(names(coeff))==TRUE){
